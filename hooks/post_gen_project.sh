@@ -14,5 +14,8 @@ source venv/bin/activate
 echo "Install requirements"
 pip install -r requirements/local.txt
 
+echo "Run migrations"
+python manage.py migrate
+
 echo "Load the admin interface themes"
 python manage.py loaddata admin_interface_themes.json
