@@ -8,8 +8,5 @@
     "database_name": "test",
     "author_email": "rcheley@gmail.com",
     "timezone": "America/Los_Angeles",
-    "admin_name": "backend",
-    "_copy_without_render": [
-        "justfile"
-    ]    
+    "admin_name": "backend"
 }
