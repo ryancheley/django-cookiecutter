@@ -5,15 +5,15 @@ test:
 
 # deploys the code to the `target` server, which can be either an IP Address or alias to an IP
 deploy target: test
-    @echo 'Deploying to {{target}}...'
-    cd {{invocation_directory()}}/scripts; ./deploy.sh {{target}}
+    @echo 'Deploying to {{"{{target}}"}}...'
+    cd {{"{{invocation_directory()}}"}}/scripts; ./deploy.sh {{"{{target}}"}}
 
 # merge current branch with dev
 branch_name := `git branch --show-current`
 merge:
-    @echo "{{branch_name}}"
+    @echo {{"{{branch_name}}"}}
     git switch dev
-    git merge "{{branch_name}}"
+    git merge {{"{{branch_name}}"}}
 
 # prunes remote branches from github
 prune:
@@ -34,15 +34,15 @@ style-build:
 
 # checks the deployment for prod settings; will return error if the check doesn't pass
 check:
-    cp {{cookiecutter.project_slug}}/.env {{cookiecutter.project_slug}}/.env_staging
-    cp {{cookiecutter.project_slug}}/.env_prod {{cookiecutter.project_slug}}/.env
+    cp "{{cookiecutter.project_slug}}"/.env "{{cookiecutter.project_slug}}"/.env_staging
+    cp "{{cookiecutter.project_slug}}"/.env_prod "{{cookiecutter.project_slug}}"/.env
     -python manage.py check --deploy
-    cp {{cookiecutter.project_slug}}/.env_staging {{cookiecutter.project_slug}}/.env
+    cp "{{cookiecutter.project_slug}}"/.env_staging "{{cookiecutter.project_slug}}"/.env
 
 # pulls from branch
 sync branch:
-    git switch {{branch}}
-    git pull github {{branch}}
+    git switch {{"{{branch}}"}}
+    git pull github {{"{{branch}}"}}
 
 # applies linting to project (black, djhtml, flake8)
 lint:
@@ -51,5 +51,5 @@ lint:
 # creates graph of models
 graph:
     python manage.py graph_models \
-        {{cookiecutter.project_slug}}
-        -o my_project_visualized.png
+    "{{cookiecutter.project_slug}}"
+    -o my_project_visualized.png
