@@ -1,7 +1,5 @@
 -r ./base.txt
 
-coverage
-pytest
 django-nplusone
 django-debug-toolbar
 djhtml
