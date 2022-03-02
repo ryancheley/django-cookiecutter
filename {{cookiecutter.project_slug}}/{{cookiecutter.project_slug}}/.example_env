@@ -1,6 +1,11 @@
+{%- if cookiecutter.sql_database == "Postgres" -%}
+DATABASE_URL=psql://{{cookiecutter.database_username}}:{{cookiecutter.database_password}}@{{cookiecutter.database_server}}:{{cookiecutter.database_port}}/{{cookiecutter.database_name}}
+{%- elif cookiecutter.sql_database == "SQLite" -%}
+DATABASE_URL=sqlite:../..////db.sqlite
+{% endif %}
+
 DEBUG=on
 SECRET_KEY=goesn+@^7!011-349^8&5lpaevm8_^0u%xr4bd*#a8h3mqf7b@
-DATABASE_URL=psql://{{cookiecutter.database_username}}:{{cookiecutter.database_password}}@{{cookiecutter.database_server}}:{{cookiecutter.database_port}}/{{cookiecutter.database_name}}
 AWS_ACCESS_KEY_ID=1234
 AWS_SECRET_ACCESS_KEY=1234
 AWS_STORAGE_BUCKET_NAME=1234

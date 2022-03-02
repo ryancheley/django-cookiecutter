@@ -4,6 +4,7 @@ from django.conf import settings
 
 urlpatterns = [
     path('{{cookiecutter.admin_name}}/', admin.site.urls),
+    path("", include("{{cookiecutter.app_name}}.urls")),
     # once api's are added, uncomment the line below
     # path("api/", include("api.urls")),
 ]

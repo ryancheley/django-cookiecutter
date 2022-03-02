@@ -1,6 +1,7 @@
 {
     "project_slug": "core",
     "author_name": "Ryan Cheley",
+    "sql_database": ["Postgres", "SQLite"],
     "database_server": "127.0.0.1",
     "database_username": "test",
     "database_password": "password",
@@ -8,5 +9,6 @@
     "database_name": "test",
     "author_email": "rcheley@gmail.com",
     "timezone": "America/Los_Angeles",
-    "admin_name": "backend"
+    "admin_name": "backend",
+    "app_name": "my_app"
 }

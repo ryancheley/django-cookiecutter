@@ -10,7 +10,11 @@ mkdir staticfiles
 echo "Install requirements"
 pip install -U pip
 pip install -r requirements.txt
-pip install -r requirements/local.txt
+
+echo "create your first app"
+python manage.py startapp {{cookiecutter.app_name}}
+cat urls.template > {{cookiecutter.app_name}}/urls.py
+cat homepage.template > {{cookiecutter.app_name}}/views.py
 
 echo "Run migrations"
 python manage.py migrate

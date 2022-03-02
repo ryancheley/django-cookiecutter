@@ -93,7 +93,7 @@ ROOT_URLCONF = '{{cookiecutter.project_slug}}.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        "DIRS": [BASE_DIR / "templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -267,6 +267,7 @@ csp_list = [
     "'self data:",
     "https://fonts.googleapis.com",
     "https://use.fontawesome.com",
+    "https://cdn.tailwindcss.com/",
     "http://127.0.0.1:8000",
     "http://www.bohemiancoding.com",
     "http://www.w3.org",
@@ -297,7 +298,6 @@ PERMISSIONS_POLICY = {
     "fullscreen": [],
     "geolocation": [],
     "gyroscope": [],
-    "interest-cohort": [],
     "magnetometer": [],
     "microphone": [],
     "midi": [],
