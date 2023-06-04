@@ -1,43 +1,34 @@
 name: Prod CI
 
 on:
-  pull_request:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   deploy:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     steps:
       - name: deploy code
-        uses: appleboy/ssh-action@v0.1.2
+        uses: appleboy/ssh-action@v0.1.10
         with:
           host: {% raw %}${{ secrets.SSH_HOST }}{% endraw %}
+          port: 22
           key: {% raw %}${{ secrets.SSH_KEY }}{% endraw %}
           username: {% raw %}${{ secrets.SSH_USERNAME }}{% endraw %}
 
           script: |
-            rm -rf {{cookiecutter.project_slug}}
             git clone git@github.com:ryancheley/{{cookiecutter.project_slug}}.git
 
             source /home/{{cookiecutter.project_slug}}/venv/bin/activate
-
-            cd /home/{{cookiecutter.project_slug}}/
-
-            rm -rf /home/{{cookiecutter.project_slug}}/{{cookiecutter.project_slug}}
-
-            cp -r /root/{{cookiecutter.project_slug}}/ /home/{{cookiecutter.project_slug}}/{{cookiecutter.project_slug}}
-
-            cp /home/{{cookiecutter.project_slug}}/.env /home/{{cookiecutter.project_slug}}/{{cookiecutter.project_slug}}/{{cookiecutter.project_slug}}/.env
+            
+            rsync -av --delete --exclude=.env {{cookiecutter.project_slug}}/* {{cookiecutter.project_slug}}
 
             pip -q install -r /home/{{cookiecutter.project_slug}}/{{cookiecutter.project_slug}}/requirements.txt
 
             python /home/{{cookiecutter.project_slug}}/{{cookiecutter.project_slug}}/manage.py migrate
 
-            mkdir /home/{{cookiecutter.project_slug}}/{{cookiecutter.project_slug}}/static
-            mkdir /home/{{cookiecutter.project_slug}}/{{cookiecutter.project_slug}}/staticfiles
-
             python /home/{{cookiecutter.project_slug}}/{{cookiecutter.project_slug}}/manage.py collectstatic --noinput -v0
 
             systemctl daemon-reload
             systemctl restart {{cookiecutter.project_slug}}
+
+            rm -rf {{cookiecutter.project_slug}}
