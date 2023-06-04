@@ -4,14 +4,15 @@ on:
   push:
     branches-ignore:
       - main
+      - dev
 
 jobs:
 
   build:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     services:
       postgres:
-        image: postgres:12.2
+        image: postgres:14.7
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -22,72 +23,29 @@ jobs:
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
-    - uses: actions/checkout@v1
-    - name: Set up Python 3.9
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.10
       uses: actions/setup-python@v1
       with:
-        python-version: 3.9
-    - uses: actions/cache@v1
+        python-version: 3.10.11
+    - uses: actions/cache@v3
       with:
         path: ~/.cache/pip
-        key: {% raw %}${{ runner.os }}-pip-${{ hashFiles('**/requirements/local.txt') }}{% endraw %}
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
         restore-keys: |
-          {% raw %}${{ runner.os }}-pip-{% endraw %}
-    - name: psycopg2 prerequisites
-      run: sudo apt-get install python-dev libpq-dev
-    - name: graphviz prerequisites
-      run: sudo apt-get install graphviz libgraphviz-dev pkg-config
+          ${{ runner.os }}-pip-
+    - name: psycopg3 prerequisites
+      run: sudo apt-get install python-dev-is-python3 libpq-dev
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install psycopg2
-        pip install -r requirements/local.txt
-    - name: create env file
-      run: |
-        touch {{cookiecutter.project_slug}}/.env
-        echo DEBUG=off >> {{cookiecutter.project_slug}}/.env
-        echo SECRET_KEY={% raw %}${{ secrets.SECRET_KEY }}{% endraw %} >> {{cookiecutter.project_slug}}/.env
-        echo STATICFILES_STORAGE={% raw %}${{ secrets.STATICFILES_STORAGE }}{% endraw %} >> {{cookiecutter.project_slug}}/.env
+        pip install -r requirements.txt
     - name: Run migrations
       run: python manage.py migrate
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: {% raw %}${{ secrets.AWS_ACCESS_KEY_ID }}{% endraw %}
-        aws-secret-access-key: {% raw %}${{ secrets.AWS_SECRET_ACCESS_KEY }}{% endraw %}
-        aws-region: us-west-1
+    - name: Load Fixtures
+      run: |
+        if [ -d "fixture" ]; then
+            python manage.py loaddata fixture/*.json
+        fi      
     - name: Run tests
       run: coverage run -m pytest
-
-    - name: deploy code
-      uses: appleboy/ssh-action@v0.1.2
-      with:
-        host: {% raw %}${{ secrets.SSH_HOST_TEST }}{% endraw %}
-        key: {% raw %}${{ secrets.SSH_KEY_TEST }}{% endraw %}
-        username: {% raw %}${{ secrets.SSH_USERNAME }}{% endraw %}
-
-        script: |
-          rm -rf {{cookiecutter.project_slug}}
-          git clone --branch dev git@github.com:ryancheley/{{cookiecutter.project_slug}}.git
-
-          source /home/{{cookiecutter.project_slug}}/venv/bin/activate
-
-          cd /home/{{cookiecutter.project_slug}}/
-
-          rm -rf /home/{{cookiecutter.project_slug}}/{{cookiecutter.project_slug}}
-
-          cp -r /root/{{cookiecutter.project_slug}}/ /home/{{cookiecutter.project_slug}}/{{cookiecutter.project_slug}}
-
-          cp /home/{{cookiecutter.project_slug}}/.env /home/{{cookiecutter.project_slug}}/{{cookiecutter.project_slug}}/{{cookiecutter.project_slug}}/.env
-
-          pip -q install -r /home/{{cookiecutter.project_slug}}/{{cookiecutter.project_slug}}/requirements.txt
-
-          python /home/{{cookiecutter.project_slug}}/{{cookiecutter.project_slug}}/manage.py migrate
-
-          mkdir /home/{{cookiecutter.project_slug}}/{{cookiecutter.project_slug}}/static
-          mkdir /home/{{cookiecutter.project_slug}}/{{cookiecutter.project_slug}}/staticfiles
-
-          python /home/{{cookiecutter.project_slug}}/{{cookiecutter.project_slug}}/manage.py collectstatic --noinput -v0
-
-          systemctl daemon-reload
-          systemctl restart {{cookiecutter.project_slug}}
